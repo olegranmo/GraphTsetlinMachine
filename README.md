@@ -1,4 +1,4 @@
-# Tsetlin Machine for Logical Learning and Reasoning With Graphs (Work in Progress)
+# Tsetlin Machine for Logical Learning and Reasoning With Graphs
 
 ![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
 
@@ -43,13 +43,17 @@ pip3 install dist/GraphTsetlinMachine-0.2.6.tar.gz
 
 ## Tutorial 
 
-In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these. You have four kinds of graphs. These are organized into two classes (_Y=0_ and _Y=1_), shown below:
+In this tutorial, you create graphs for the Noisy XOR problem and then train and test the Graph Tsetlin Machine on these.
+
+Noisy XOR gives four kinds of graphs, shown below:
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_. The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
+Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
+
+The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
 ### Initialization
 
@@ -148,7 +152,17 @@ The class label is finally randomly inverted to introduce noise.
 
 ## Demos
 
-Demos coming soon.
+### Vanilla MNIST
+
+<p align="center">
+  <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
+</p>
+
+### Convolutional MNIST
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
+</p>
 
 ## Paper
 
@@ -160,6 +174,7 @@ _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christof
 - Add autoencoder
 - Add regression
 - Add multi-output
+- Graph initialization with adjacency matrix
 
 ## Licence
 
