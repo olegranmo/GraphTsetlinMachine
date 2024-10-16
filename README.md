@@ -15,11 +15,12 @@ Implementation of the Graph Tsetlin Machine.
   - [Adding the Node Properties and Class Labels](#adding-the-node-properties-and-class-labels)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
-  - [Learning and Reasoning With Nested Clauses](#learning-and-reasoning-with-nested-clauses)
+  - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
 - [Demos](#demos)
   - [Vanilla MNIST](#Vanilla-MNIST)
   - [Convolutional MNIST](#Convolutional-MNIST)
 - [Paper](#paper)
+- [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
 - [Licence](#licence)
 
@@ -142,33 +143,76 @@ The class label is finally randomly inverted to introduce noise.
 
 ### Clause-Driven Message Passing
 
+The Graph Tsetlin Machine is based on message passing. As illustrated below, a pool of clauses examines each node in the graph. Whenever a clause matches the properties of a node, it sends a message about its finding through the node's outgoing edges.
+
 <p align="center">
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
+When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information. This enables logical learning and reasoning with nested clauses, explained below. 
 
-### Learning and Reasoning With Nested Clauses
+### Logical Learning and Reasoning With Nested Clauses
+
+The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
 <p align="center">
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
 </p>
 
+Initially, the clauses only consider the nodes' properties (the properties marked in black).
+* In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
+* In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
+  
+This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task.
+
+Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
+
 ## Demos
 
 ### Vanilla MNIST
+
+The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a node, illustrated for MNIST images below:
 
 <p align="center">
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
 
+Here, each white pixel in the grid of <i>28x28</i> pixels gets its own symbol: W<sub>x,y</sub>. You define an image by adding its white pixels as properties to the graph node. Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
+
 ### Convolutional MNIST
+
+By using many nodes to capture rich data, you can exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches, each patch containing _10x10_ pixels:
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
 
+Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also shows how you can use a node's location inside the image to enhance the representation. You do this by introducing row R<sub>x</sub> and column C<sub>y</sub> symbols. These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image. Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
+
 ## Paper
 
 _A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
+
+## CUDA Configurations
+
+### DGX-2 and A100
+
+```bash
+tm = MultiClassGraphTsetlinMachine(
+  ...
+  grid=(16*13,1,1),
+  block=(128,1,1)
+)
+```
+
+### DGX H100
+
+```bash
+tm = MultiClassGraphTsetlinMachine(
+  ...
+  grid=(16*13*4,1,1),
+  block=(128,1,1)
+)
+```
 
 ## Roadmap
 
