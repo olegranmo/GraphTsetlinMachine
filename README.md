@@ -10,9 +10,9 @@ Implementation of the Graph Tsetlin Machine.
 - [Installation](#installation)
 - [Tutorial](#tutorial)
   - [Initialization](#initialization)
-  - [Adding the Nodes](#adding-the-nodes)
-  - [Adding the Node Edges](#adding-the-node-edges)
-  - [Adding the Node Properties and Class Labels](#adding-the-node-properties-and-class-labels)
+  - [Adding Nodes](#adding-nodes)
+  - [Adding Edges](#adding-edges)
+  - [Adding Properties and Class Labels](#adding-properties-and-class-labels)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
@@ -41,7 +41,7 @@ pip3 install graphtsetlinmachine
 or
 ```bash
 python ./setup.py sdist
-pip3 install dist/GraphTsetlinMachine-0.2.6.tar.gz
+pip3 install dist/GraphTsetlinMachine-0.2.9.tar.gz
 ```
 
 ## Tutorial 
@@ -78,7 +78,7 @@ You initialize the graphs as follows:
   
 - *Generation and Compilation.* The generation and compilation of hypervectors happen automatically during initialization, using [sparse distributed codes](https://ieeexplore.ieee.org/document/917565).
 
-### Adding the Nodes
+### Adding Nodes
 
 The next step is to set how many nodes you want in each of the _10,000_ graphs you are building. For the Noisy XOR problem, each graph has two nodes:
 ```bash
@@ -99,25 +99,25 @@ for graph_id in range(10000):
   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
-### Adding the Node Edges
+### Adding Edges
 
-You are now ready to prepare your graphs structure for adding edges:
+You are now ready to prepare for adding edges:
 ```bash
 graphs_train.prepare_edge_configuration()
 ```
 
-After that, you connect the two nodes of each graph with two edges:
+Next, you connect the two nodes of each graph:
 ```bash
 for graph_id in range(10000):
     edge_type = "Plain"
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
-You need two edges because you build directed graphs, and with two edges you cover both directions. We use only one type of edges for this, which we name _Plain_.
+You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one type of edges, named _Plain_.
 
-### Adding the Node Properties and Class Labels
+### Adding Properties and Class Labels
 
-In the last step, you randomly assign property *A* or *B* to each node.
+In the last step, you randomly assign property **A** or **B** to each node.
 ```bash
 Y_train = np.empty(10000, dtype=np.uint32)
 for graph_id in range(10000):
@@ -148,21 +148,21 @@ The Graph Tsetlin Machine is based on message passing. As illustrated below, a p
 <p align="center">
   <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
 </p>
-When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information. This enables logical learning and reasoning with nested clauses, explained below. 
+When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
 
 ### Logical Learning and Reasoning With Nested Clauses
 
-The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
+The above message passing enables logical learning and reasoning with nested (deep) clauses. The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
 <p align="center">
   <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
 </p>
 
-Initially, the clauses only consider the nodes' properties (the properties marked in black).
+Initially, the clauses only consider the nodes' properties (marked in black).
 * In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
 * In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
   
-This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task.
+This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
 
 Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
@@ -176,7 +176,9 @@ The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms,
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
 
-Here, each white pixel in the grid of <i>28x28</i> pixels gets its own symbol: W<sub>x,y</sub>. You define an image by adding its white pixels as properties to the graph node. Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
+Here, you define an image by adding its white pixels as properties to the graph node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
+
+Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
 
 ### Convolutional MNIST
 
@@ -186,7 +188,11 @@ By using many nodes to capture rich data, you can exploit inherent structure in 
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
 
-Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also shows how you can use a node's location inside the image to enhance the representation. You do this by introducing row R<sub>x</sub> and column C<sub>y</sub> symbols. These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image. Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
+Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also shows how you can use a node's location inside the image to enhance the representation. You do this by introducing row R<sub>x</sub> and column C<sub>y</sub> symbols.
+
+These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image.
+
+Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
 
 ## Paper
 
