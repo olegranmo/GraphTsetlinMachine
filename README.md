@@ -171,13 +171,13 @@ Notice how each team operates across a node's properties as well as the incorpor
 
 ### Vanilla MNIST
 
-The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a node, illustrated for MNIST images below:
+The Graph Tsetlin Machine supports rich data (images, video, text, spectrograms, sound, etc.). One can, for example, add an entire image to a graph node, illustrated for MNIST images below:
 
 <p align="center">
   <img width="40%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/VanillaMNIST.png">
 </p>
 
-Here, you define an image by adding its white pixels as properties to the graph node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
+Here, you define an image by adding its white pixels as properties to the node. Each white pixel in the grid of <i>28x28</i> pixels gets its own symbol W<sub>x,y</sub>.
 
 Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machine. See the Vanilla MNIST Demo in the example folder for further details.
 
@@ -208,6 +208,8 @@ From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ 
 **Remark 1.** If three 'A's is the maximum, you only need one round of message passing to determine the correct class. More 'A's require additional rounds. The reason is that the message passing increases the perspective of each node by incorporating the perspective of neighboring nodes. Since every node widens their perspective in this manner, the effect is cascading.
 
 **Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
+
+See the Sequence Classification Demo in the example folder for further details.
 
 ## Paper
 
