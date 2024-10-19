@@ -17,8 +17,9 @@ Implementation of the Graph Tsetlin Machine.
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
 - [Demos](#demos)
-  - [Vanilla MNIST](#Vanilla-MNIST)
-  - [Convolutional MNIST](#Convolutional-MNIST)
+  - [Vanilla MNIST](#vanilla-mnist)
+  - [Convolutional MNIST](#convolutional-mnist)
+  - [Sequence Classification](#sequence-classification)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -41,7 +42,7 @@ pip3 install graphtsetlinmachine
 or
 ```bash
 python ./setup.py sdist
-pip3 install dist/GraphTsetlinMachine-0.2.9.tar.gz
+pip3 install dist/GraphTsetlinMachine-0.3.1.tar.gz
 ```
 
 ## Tutorial 
@@ -193,6 +194,20 @@ Again, white pixel symbols W<sub>x,y</sub> define the image content. However, th
 These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image.
 
 Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machine. See the Convolutional MNIST Demo in the example folder for further details.
+
+### Sequence Classification
+
+The above two examples did not require edges. Here is an example where the edges are essential. The task is to decide how many 'A's occur in sequence. The 'A's can appear at any time, preceded and followed by spaces. The below graphs model the task: 
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
+</p>
+
+From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
+
+**Remark 1.** If three 'A's is the maximum, you only need one round of message passing to determine the correct class. More 'A's require additional rounds. The reason is that the message passing increases the perspective of each node by incorporating the perspective of neighboring nodes. Since every node widens their perspective in this manner, the effect is cascading.
+
+**Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 ## Paper
 
