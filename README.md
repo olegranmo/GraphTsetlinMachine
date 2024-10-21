@@ -1,8 +1,10 @@
 # Tsetlin Machine for Logical Learning and Reasoning With Graphs
 
-![License](https://img.shields.io/github/license/microsoft/interpret.svg?style=flat-square) ![Python Version](https://img.shields.io/pypi/pyversions/interpret.svg?style=flat-square)![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
+![License](https://img.shields.io/github/license/cair/tmu.svg?style=flat-square) ![Maintenance](https://img.shields.io/maintenance/yes/2024?style=flat-square)
 
-Implementation of the Graph Tsetlin Machine.
+*"The Tsetlin machine is a new universal artificial intelligence (AI) method that learns simple logical rules to understand complex things, similar to how an infant uses logic to learn about the world. Being logical, the rules become understandable to humans. Yet, unlike all other intrinsically explainable techniques, Tsetlin machines are drop-in replacements for neural networks by supporting classification, convolution, regression, reinforcement learning, auto-encoding, language models, and natural language processing. They are further ideally suited for cutting-edge hardware solutions of low cost, enabling nanoscale intelligence, ultralow energy consumption, energy harvesting, unrivaled inference speed, and competitive accuracy."*
+
+This project implements the Graph Tsetlin Machine.
 
 ## Contents
 
@@ -20,6 +22,7 @@ Implementation of the Graph Tsetlin Machine.
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
   - [Sequence Classification](#sequence-classification)
+- [Example Use Case](#example-use-case)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -197,7 +200,9 @@ Without adding any edges, the result is a Coalesced Convolutional Tsetlin Machin
 
 ### Sequence Classification
 
-The above two examples did not require edges. Here is an example where the edges are essential. The task is to decide how many 'A's occur in sequence. The 'A's can appear at any time, preceded and followed by spaces. The below graphs model the task: 
+The above two examples did not require edges. Here is an example where the edges are essential.
+
+The task is to decide how many 'A's occur in sequence. The 'A's can appear at any time, preceded and followed by spaces. The below graphs model the task: 
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
@@ -205,11 +210,21 @@ The above two examples did not require edges. Here is an example where the edges
 
 From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
 
-**Remark 1.** If three 'A's is the maximum, you only need one round of message passing to determine the correct class. More 'A's require additional rounds. The reason is that the message passing increases the perspective of each node by incorporating the perspective of neighboring nodes. Since every node widens their perspective in this manner, the effect is cascading.
+**Remark 1.** If three 'A's is the maximum, you only need one round of message passing to determine the correct class. More 'A's require additional rounds. The reason is that the message passing widens the perspective of each node by incorporating the perspective of neighboring nodes. Since every node enhances their perspective in this manner, the effect is cascading.
 
 **Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 See the Sequence Classification Demo in the example folder for further details.
+
+## Example Use Case
+
+Graph Tsetlin Machines process multimodal data in complex structures. Here is an envisioned example use case from a hospital:
+
+<p align="center">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
+</p>
+
+The nodes capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the [medical narrative](https://ieeexplore.ieee.org/document/8798633) in Electronic Health Records. The different types of edges specify the relationships between the data. Masurement edges relate medical tests to a patient, condition edges relate diseases to patients, and so on.  Example machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
 
 ## Paper
 
