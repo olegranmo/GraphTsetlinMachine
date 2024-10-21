@@ -224,11 +224,11 @@ Graph Tsetlin Machines process multimodal data in complex structures. Here is an
   <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/GraphTM.png">
 </p>
 
-The nodes capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the [medical narrative](https://ieeexplore.ieee.org/document/8798633) in Electronic Health Records. The different types of edges specify the relationships between the data. Masurement edges relate medical tests to a patient, condition edges relate diseases to patients, and so on.  Example machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
+The nodes in the figure capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the [medical narrative](https://ieeexplore.ieee.org/document/8798633) in Electronic Health Records. The different types of edges specify the relationships between the data: _Measurement_ edges relate medical tests to a patient, _Condition_ edges relate diseases to patients, and so on. Machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
 
 ## Paper
 
-_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, et al., 2024. (Forthcoming)
+_A Tsetlin Machine for Logical Learning and Reasoning With Graphs_. Ole-Christoffer Granmo, Youmna Abdelwahab, Per-Arne Andersen, Paul F. A. Clarke, Kunal Dumbre, Ylva Grønninsæter, Vojtech Halenka, Runar Helin, Lei Jiao, Ahmed Khalid, Rebekka Omslandseter, Rupsa Saha, Mayur Shende, and Xuan Zhang, 2024. (Forthcoming)
 
 ## CUDA Configurations
 
