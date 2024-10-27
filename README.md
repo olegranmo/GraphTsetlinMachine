@@ -15,14 +15,15 @@ This project implements the Graph Tsetlin Machine.
   - [Adding Nodes](#adding-nodes)
   - [Adding Edges](#adding-edges)
   - [Adding Properties and Class Labels](#adding-properties-and-class-labels)
-- [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
-  - [Clause-Driven Message Passing](#clause-driven-message-passing)
-  - [Logical Learning and Reasoning With Nested Clauses](#logical-learning-and-reasoning-with-nested-clauses)
 - [Demos](#demos)
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
   - [Sequence Classification](#sequence-classification)
 - [Example Use Case](#example-use-case)
+- [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
+  - [Clause-Driven Message Passing](#clause-driven-message-passing)
+  - [Logical Reasoning With Nested Clauses](#logical-reasoning-with-nested-clauses)
+  - [Logical Learning With Nested Clauses](#logical-reasoning-with-nested-clauses)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -58,7 +59,7 @@ Noisy XOR gives four kinds of graphs, shown below:
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node in a graph has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
+Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
 
 The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
@@ -96,11 +97,9 @@ graphs_train.prepare_node_configuration()
 You add the two nodes to the graphs as follows, giving them one outgoing edge each:
 ```bash
 for graph_id in range(10000):
-  number_of_outgoing_edges = 1
-
-  graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
-
-  graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
+   number_of_outgoing_edges = 1
+   graphs_train.add_graph_node(graph_id, 'Node 1', number_of_outgoing_edges)
+   graphs_train.add_graph_node(graph_id, 'Node 2', number_of_outgoing_edges)
 ```
 
 ### Adding Edges
@@ -117,7 +116,7 @@ for graph_id in range(10000):
     graphs_train.add_graph_node_edge(graph_id, 'Node 1', 'Node 2', edge_type)
     graphs_train.add_graph_node_edge(graph_id, 'Node 2', 'Node 1', edge_type)
 ```
-You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one type of edges, named _Plain_.
+You need two edges because you build directed graphs, and with two edges you cover both directions. Use only one edge type, named _Plain_.
 
 ### Adding Properties and Class Labels
 
@@ -143,32 +142,7 @@ The class label is finally randomly inverted to introduce noise.
     if np.random.rand() <= 0.01:
         Y_train[graph_id] = 1 - Y_train[graph_id]
 ```
-## Graph Tsetlin Machine Basics
-
-### Clause-Driven Message Passing
-
-The Graph Tsetlin Machine is based on message passing. As illustrated below, a pool of clauses examines each node in the graph. Whenever a clause matches the properties of a node, it sends a message about its finding through the node's outgoing edges.
-
-<p align="center">
-  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
-</p>
-When a node receives a message, it adds the message to its properties. In this manner, the messages supplement the node properties with contextual information.
-
-### Logical Learning and Reasoning With Nested Clauses
-
-The above message passing enables logical learning and reasoning with nested (deep) clauses. The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
-
-<p align="center">
-  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
-</p>
-
-Initially, the clauses only consider the nodes' properties (marked in black).
-* In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
-* In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
-  
-This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
-
-Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
+See the Noisy XOR Demo in the example folder for further details.
 
 ## Demos
 
@@ -186,13 +160,13 @@ Note that with only a single node, you obtain a Coalesced Vanilla Tsetlin Machin
 
 ### Convolutional MNIST
 
-By using many nodes to capture rich data, you can exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches, each patch containing _10x10_ pixels:
+By using many nodes to capture rich data, you can exploit inherent structure in the data. Below, each MNIST image is broken down into a grid of _19x19_ image patches. A patch then contains _10x10_ pixels:
 
 <p align="center">
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/ConvolutionalMNIST.png">
 </p>
 
-Again, white pixel symbols W<sub>x,y</sub> define the image content. However, this example also shows how you can use a node's location inside the image to enhance the representation. You do this by introducing row R<sub>x</sub> and column C<sub>y</sub> symbols.
+Again, white pixel symbols W<sub>x,y</sub> define the image content. Additionally, this example use a node's location inside the image to enhance the representation. You do this by introducing row R<sub>y</sub> and column C<sub>x</sub> symbols.
 
 These symbols allow the Graph Tsetlin Machine to learn and reason about pixel patterns as well as their location inside the image.
 
@@ -210,9 +184,7 @@ The task is to decide how many 'A's occur in sequence. The 'A's can appear at an
 
 From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
 
-**Remark 1.** If three 'A's is the maximum, you only need one round of message passing to determine the correct class. More 'A's require additional rounds. The reason is that the message passing widens the perspective of each node by incorporating the perspective of neighboring nodes. Since every node enhances their perspective in this manner, the effect is cascading.
-
-**Remark 2.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
+**Remark.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 See the Sequence Classification Demo in the example folder for further details.
 
@@ -225,6 +197,74 @@ Graph Tsetlin Machines process multimodal data in complex structures. Here is an
 </p>
 
 The nodes in the figure capture various kinds of health data, such as [ECG](https://arxiv.org/abs/2301.10181) and the [medical narrative](https://ieeexplore.ieee.org/document/8798633) in Electronic Health Records. The different types of edges specify the relationships between the data: _Measurement_ edges relate medical tests to a patient, _Condition_ edges relate diseases to patients, and so on. Machine learning tasks in this setting include: forecasting, alerting, decision-making, situation assessment, risk mitigation, knowledge discovery, and optimization.
+
+## Graph Tsetlin Machine Basics
+
+### Clause-Driven Message Passing
+
+The Graph Tsetlin Machine is based on message passing. As illustrated below, a pool of clauses examines each node in the graph. Whenever a clause matches the properties of a node, it sends a message about its finding through the node's outgoing edges.
+
+<p align="center">
+  <img width="75%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/MessagePassing.png">
+</p>
+
+When a node receives a message, it appends the message to its properties. In this manner, the messages supplement the node properties with contextual information.
+
+### Logical Reasoning With Nested Clauses
+
+The above message passing enables logical reasoning with nested (deep) clauses. Use the Sequence Classification Demo to study this procedure step-by-step with a single clause $C:$
+
+<p align="center">
+  <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
+</p>
+
+**1) Input Graph.** Here, the input is a graph with three consecutive $\mathbf{A}$ nodes:
+
+<p align="center">
+  <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
+</p>
+
+**2) Features.** The Graph Tsetlin Machine next describes each node using Boolean features $[\mathbf{A}, \mathit{Left} \otimes C, \mathit{Right} \otimes C]:$
+
+<p align="center">
+  <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
+</p>
+
+Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
+
+**3) Clause Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node property part of the features:
+
+$$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}.$$
+
+The reason is that the clause truth value to the _Left_ and _Right_ is not yet calculated.
+
+**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. If any of these values are _True_, they are passed allong the outgoing edges, updating the features of each node:
+
+<p align="center">
+  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
+</p>
+
+**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.**
+
+<p align="center">
+  <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FullClauseMatchingAndEvaluationSequenceClassification.png">
+</p>
+
+### Logical Learning With Nested Clauses
+
+The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
+
+<p align="center">
+  <img width="100%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/DeepLogicalLearningAndReasoning.png">
+</p>
+
+Initially, the clauses only consider the nodes' properties (marked in black).
+* In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
+* In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
+  
+This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
+
+Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
 ## Paper
 
