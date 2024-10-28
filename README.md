@@ -24,7 +24,8 @@ This project implements the Graph Tsetlin Machine.
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
   - [Logical Reasoning With Nested Clauses](#logical-reasoning-with-nested-clauses)
-  - [Logical Learning With Nested Clauses](#logical-reasoning-with-nested-clauses)
+  - [Deeper Logical Reasoning](#deeper-logical-reasoning)
+  - [Logical Learning With Nested Clauses](#logical-learning-with-nested-clauses)
 - [Paper](#paper)
 - [CUDA Configurations](#cuda-configurations)
 - [Roadmap](#roadmap)
@@ -199,6 +200,8 @@ This example increases the challenge of the Noisy XOR problem by using images of
 
 Again, the white pixels of the images become the node properties (illustrated by the images themselves above). To solve this task, the Graph Tsetlin Machine must both learn the appearance of handwritten '0's and '1', while relating them according to the XOR relation under the guidance of noisy class labels.
 
+See the Noisy XOR MNIST Demo in the example folder for further details.
+
 ## Example Use Case
 
 Graph Tsetlin Machines process multimodal data in complex structures. Here is an envisioned example use case from a hospital:
@@ -257,13 +260,15 @@ The reason is that the truth values of $C$ to the _left_ and to the _right_ are 
 
 Note that the truth values are set to $False$ by default to minimize the need for message passing.
 
-**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.**
+**7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.** The message literals of the clause (marked in red) can now be activated for full clause matching:
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FullClauseMatchingAndEvaluationSequenceClassification.png">
 </p>
 
-### Logical Learning With Nested Clauses
+The result is an updated truth value per node. Finally, the truth values are ORed together to give the final classification $Y = 2$ (three consecutive $\mathbf{A}s$).
+
+### Deeper Logical Reasoning
 
 The number of message rounds decides the depth of the reasoning. Three layers of reasoning, for instance, consist of local reasoning, followed by two rounds of message passing, illustrated below:
 
@@ -275,9 +280,11 @@ Initially, the clauses only consider the nodes' properties (marked in black).
 * In the first round of message passing, matching clauses send out their messages. These messages supplement the receiving node's properties (marked in red).
 * In the second round, the clauses examine the nodes again, now taking into account the first round of messages. Based on this revisit, the clauses produce the second round of messages, marked in blue.
   
-This process continues until reaching the desired depth of reasoning, in this case depth three. Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand.
+This process continues until reaching the desired depth of reasoning, in this case depth three.
 
-Notice how each team operates across a node's properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
+### Logical Learning With Nested Clauses
+
+Finally, the Tsetlin Automata Teams update their states based on how the clauses handled the classification task at hand. Notice from the figure how each team operates across the nodes' properties as well as the incorporated messages.  In this manner, they are able to build nested clauses. That is, a clause can draw upon the outcomes of other clauses to create hierarchical clause structures, centered around the various nodes. Hence, the power of the scheme!
 
 ## Paper
 
