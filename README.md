@@ -19,6 +19,7 @@ This project implements the Graph Tsetlin Machine.
   - [Vanilla MNIST](#vanilla-mnist)
   - [Convolutional MNIST](#convolutional-mnist)
   - [Sequence Classification](#sequence-classification)
+  - [Noisy XOR With MNIST Images](#noisy-xor-with-mnist-images)
 - [Example Use Case](#example-use-case)
 - [Graph Tsetlin Machine Basics](#graph-tsetlin-machine-basics)
   - [Clause-Driven Message Passing](#clause-driven-message-passing)
@@ -59,7 +60,7 @@ Noisy XOR gives four kinds of graphs, shown below:
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXOR.png">
 </p>
 
-Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label _Y=0_. Otherwise, it is given the class label _Y=1_.
+Observe how each node has one of two properties: **A** or **B**. If both of the graph's nodes have the same property, the graph is given the class label $Y=0$. Otherwise, it is given the class label $Y=1$.
 
 The task of the Graph Tsetlin Machine is to assign the correct class label to each graph when the labels used for training are noisy.
 
@@ -182,11 +183,21 @@ The task is to decide how many 'A's occur in sequence. The 'A's can appear at an
   <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SimpleSequenceProblem.png">
 </p>
 
-From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its _Left_ and to its _Right_, however, a node can start gathering information about how many 'A's appear in the sequence.
+From the perspective of a single node, the three classes _Y=0_ (one 'A'), _Y=1_ (two 'A's), and _Y=2_ (three 'A's) all look the same. Each node only sees an 'A' or a space. By considering the nodes to its $Left$ and to its $Right$, however, a node can start gathering information about how many 'A's appear in the sequence.
 
-**Remark.** Notice the two types of edges: _Left_ and _Right_. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
+**Remark.** Notice the two types of edges: $Left$ and $Right$. With only a single edge type, a node would not be able distinguish between an 'A' to its left and an 'A' to its right, making the task more difficult. Hence, using two types of edges is beneficial.
 
 See the Sequence Classification Demo in the example folder for further details.
+
+### Noisy XOR With MNIST Images
+
+This example increases the challenge of the Noisy XOR problem by using images of handwritten '0's and '1's instead of the symbols $\textbf{A}$ and $\textbf{B}$. Random selection from the MNIST collection of images gives a diverse range of handwritten digits:
+
+<p align="center">
+  <img width="60%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/NoisyXORMNIST.png">
+</p>
+
+Again, the white pixels of the images become the node properties (illustrated by the images themselves above). To solve this task, the Graph Tsetlin Machine must both learn the appearance of handwritten '0's and '1', while relating them according to the XOR relation under the guidance of noisy class labels.
 
 ## Example Use Case
 
@@ -212,37 +223,39 @@ When a node receives a message, it appends the message to its properties. In thi
 
 ### Logical Reasoning With Nested Clauses
 
-The above message passing enables logical reasoning with nested (deep) clauses. Use the Sequence Classification Demo to study this procedure step-by-step with a single clause $C:$
+The above message passing enables logical reasoning with nested (deep) clauses. We here use the Sequence Classification Demo to study the reasoning procedure step-by-step, employing a single clause $C:$
 
 <p align="center">
   <img width="70%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/SequenceClassificationInference.png">
 </p>
 
-**1) Input Graph.** Here, the input is a graph with three consecutive $\mathbf{A}$ nodes:
+**1) Input Graph.** The example input is a graph with three consecutive $\mathbf{A}$ nodes:
 
 <p align="center">
   <img width="50%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/InputGraphSequenceClassification.png">
 </p>
 
-**2) Features.** The Graph Tsetlin Machine next describes each node using Boolean features $[\mathbf{A}, \mathit{Left} \otimes C, \mathit{Right} \otimes C]:$
+**2) Initial Features.** The Graph Tsetlin Machine next describes each node using Boolean features $[\mathbf{A}, Left \otimes C, Right \otimes C]:$
 
 <p align="center">
   <img width="65%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/FeaturesSequenceClassification.png">
 </p>
 
-Feature $A$ tells whether the node has property $A$. Feature $\mathit{Left} \otimes C$ introduces the truth value of clause $C$ to the *Left*. The operator $\otimes$ is the vector symbolic way of saying that you bind two symbols together into a new unit, in this case the symbol _Left_ and the symbol $C$. Correspondingly, feature $\mathit{Right} \otimes C$ gives the truth value of clause $C$ to the *Right*.
+Feature $\mathbf{A}$ tells whether the node has property $\mathbf{A}$. Feature $Left \otimes C$ is a placeholder for the truth value of clause $C$ to the *left*. Note that the operator $\otimes$ is the vector symbolic way of binding two symbols together into a new unit, in this case the edge type $Left$ and the clause $C$. You can consider this binding as an explainable way to name the second feature. Correspondingly, feature $Right \otimes C$ gives the truth value of clause $C$ to the *right*. The Graph Tsetlin Machine initializes the second and third feature to $False$, to be updated by any arriving messages. 
 
-**3) Clause Without Message Literals.** To produce the first round of messages, the clause $C$ only considers the node property part of the features:
+**3) Clause Without Message Literals.** To produce the first round of messages, clause $C$ only considers the node properties:
 
-$$C = \textbf{A} \textcolor{lightgray}{\land \Big(\mathit{Left} \otimes C\Big) \land \Big(\mathit{Right} \otimes C\Big)}.$$
+$$C = \textbf{A} \textcolor{lightgray}{\land \Big(Left \otimes C\Big) \land \Big(Right \otimes C\Big)}.$$
 
-The reason is that the clause truth value to the _Left_ and _Right_ is not yet calculated.
+The reason is that the truth values of $C$ to the _left_ and to the _right_ are not yet calculated.
 
-**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. If any of these values are _True_, they are passed allong the outgoing edges, updating the features of each node:
+**4) Partial Clause Matching; 5) Message Passing; 6) Updated Features.** In these steps, the Graph Tsetlin Machine matches the partial clause against the nodes. This matching gives one truth value per node. Value $True$ then passes along the outgoing edges, updating the features of each node:
 
 <p align="center">
   <img width="90%" src="https://github.com/cair/GraphTsetlinMachine/blob/master/figures/PartialMatchingAndMessagePassingSequenceClassification.png">
 </p>
+
+Note that the truth values are set to $False$ by default to minimize the need for message passing.
 
 **7) Full Clause With Message Literals; 8)Full Clause Matching; 9) Evaluation; 10) Classification.**
 
